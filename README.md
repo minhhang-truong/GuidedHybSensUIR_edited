@@ -54,4 +54,15 @@ python infer.py
 # Citation
 
 ```bib
+@ARTICLE{10824878,
+  author={Guo, Xiaojiao and Chen, Xuhang and Wang, Shuqiang and Pun, Chi-Man},
+  journal={IEEE Transactions on Circuits and Systems for Video Technology}, 
+  title={Underwater Image Restoration Through a Prior Guided Hybrid Sense Approach and Extensive Benchmark Analysis}, 
+  year={2025},
+  volume={},
+  number={},
+  pages={1-1},
+  keywords={Image restoration;Image color analysis;Benchmark testing;Deep learning;Green products;Distortion;Transformers;Adaptation models;Training;Lighting;Underwater image restoration;image enhancement;prior guided attention;efficient Transformer;multi-scales hybridization},
+  doi={10.1109/TCSVT.2025.3525593}
+}
 ```
