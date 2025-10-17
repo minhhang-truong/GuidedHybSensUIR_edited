@@ -44,10 +44,10 @@ class FeatureContextualizer(nn.Module):
 
 
 class DetailRestorer(nn.Module):
-    def __init__(self, ch=3, dim=16):
+    def __init__(self, ch=3, ch_prior=3, dim=16):
         super(DetailRestorer, self).__init__()
 
-        self.embed = OverlapPatchEmbed(ch, dim)
+        self.embed = OverlapPatchEmbed(ch + ch_prior, dim)
 
         self.block1_1 = QBlock(dim)
         self.block1_2 = QBlock(dim)
@@ -63,8 +63,9 @@ class DetailRestorer(nn.Module):
 
         self.spp = SPP(dim, ch)
 
-    def forward(self, x):
-        x = self.embed(x)
+    def forward(self, x, prior):
+        x_in = torch.cat((x, prior), dim=1)
+        x = self.embed(x_in)
 
         x_1 = self.block1_1(x)
         x_2 = self.block1_2(x_1)
@@ -1166,18 +1167,19 @@ class PriorGuidedRE(nn.Module):
             ))
 
         for i in range(self.down_depth + 1):
-            self.dr.append(DetailRestorer(self.ch_in * 2 ** i))
+            ch_level = self.ch_in * 2 **i
+            self.dr.append(DetailRestorer(ch=ch_level, ch_prior=ch_level))
             self.fusion.append(ScaleHarmonizer(self.ch_in * 2 ** (i + 1), self.ch_in * 2 ** i))
 
 
     def forward(self, x, prior):
         dr_res = []
-        dr_res.append(self.dr[0](x))
         prior_low = prior
+        dr_res.append(self.dr[0](x, prior_low))
         for i, (down, prior_down) in enumerate(zip(self.downs, self.prior_downs)):
             low = down(dr_res[i])
-            dr_res.append(self.dr[i + 1](low))
             prior_low = prior_down(prior_low)
+            dr_res.append(self.dr[i + 1](low, prior_low))
 
         fusion_res = []
 
